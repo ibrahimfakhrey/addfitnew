@@ -67,6 +67,7 @@ with app.app_context():
         numbers=db.Column(db.String(100))
         member=db.Column(db.String(100))
         adress=db.Column(db.String(100))
+        gender=db.Column(db.String(100))
     db.create_all()
 
 
@@ -79,5 +80,35 @@ admin.add_view(MyModelView(User, db.session))
 @app.route("/")
 def start():
     return render_template("index.html")
+@app.route("/r",methods=["GET","POST"])
+
+def r():
+    if request.method=="POST":
+        first_name = request.form.get('First Name')
+        last_name = request.form.get('Last Name')
+        gender = request.form.get('Gender')
+        dob_day = request.form.get('dob_day')  # You need to add names to the DOB fields in the HTML
+        dob_month = request.form.get('dob_month')
+        dob_year = request.form.get('dob_year')
+        username = request.form.get('Username')
+        password = request.form.get('Password')
+        email = request.form.get('Email')
+        phone = request.form.get('Phone')
+        address = request.form.get('Address')
+        weight = request.form.get('weight')
+        tall = request.form.get('tall')
+        age = request.form.get('Age')
+        diseases = request.form.get('diseases')
+        payment_option = request.form.get('Payment')
+        new_user=User(
+        phone=phone,name=first_name,email=email,password=password,weight=weight,tall=tall,age=age,health=diseases,member=payment_option,gender=gender,adress=address,
+                starting_day=datetime.today()
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        return "user enterd "
+
+
+    return  render_template("register.html")
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5000,debug=True)
