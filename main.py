@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 from flask import Flask, render_template, redirect, url_for, flash, abort, request, current_app, jsonify, make_response, \
@@ -45,6 +46,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+def calculate_subscription_expiry(start_date, subscription_type):
+    if subscription_type == 'month':
+        return start_date + timedelta(days=30)
+    elif subscription_type == '3 months':
+        return start_date + timedelta(days=30 * 3)
+    elif subscription_type == 'year':
+        # Assuming a year has 365 days for simplicity
+        return start_date + timedelta(days=365)
+    else:
+        return "Invalid subscription type"
 with app.app_context():
 
 
@@ -59,6 +70,8 @@ with app.app_context():
         message = db.Column(db.String(1000))
         starting_day = db.Column(db.DateTime)
         due_Date = db.Column(db.DateTime)
+        coin=db.Column(db.Boolean(), default=False)
+        coins=db.Column(db.Integer)
         delegate = db.Column(db.DateTime)
         weight=db.Column(db.String(100))
         tall=db.Column(db.String(100))
@@ -79,6 +92,8 @@ admin = Admin(app)
 admin.add_view(MyModelView(User, db.session))
 @app.route("/")
 def start():
+    toda= calculate_subscription_expiry(datetime.today(),"3 months")
+    print(toda)
     return render_template("index.html")
 @app.route("/r",methods=["GET","POST"])
 
@@ -100,15 +115,35 @@ def r():
         age = request.form.get('Age')
         diseases = request.form.get('diseases')
         payment_option = request.form.get('Payment')
-        new_user=User(
-        phone=phone,name=first_name,email=email,password=password,weight=weight,tall=tall,age=age,health=diseases,member=payment_option,gender=gender,adress=address,
-                starting_day=datetime.today()
-        )
+
+        if payment_option == "50" or payment_option=="100":
+
+
+
+            new_user=User(
+            phone=phone,name=first_name,email=email,password=password,weight=weight,tall=tall,age=age,health=diseases,member=payment_option,gender=gender,adress=address,
+                    starting_day=datetime.today(),coin=True,coins=int(payment_option)
+            )
+        else:
+            new_user = User(
+                phone=phone, name=first_name, email=email, password=password, weight=weight, tall=tall, age=age,
+                health=diseases, member=payment_option, gender=gender, adress=address,
+                starting_day=datetime.today(), due_Date=calculate_subscription_expiry(datetime.today(),payment_option)
+            )
         db.session.add(new_user)
         db.session.commit()
         return "user enterd "
 
 
     return  render_template("register.html")
+@app.route("/login",methods=["GET","POST"])
+def login():
+    if request.method=="POST":
+        phone=request.form.get("phone")
+        password=request.form.get("password")
+        user=User.query.filter_by(phone=phone).first()
+        if user and user.password==password:
+            if user.coin:
+
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5000,debug=True)
