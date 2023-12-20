@@ -4,8 +4,7 @@ from datetime import datetime
 from datetime import datetime, timedelta
 
 import requests
-from flask import Flask, render_template, redirect, url_for, flash, abort, request, current_app, jsonify, make_response, \
-    Response
+from flask import Flask, render_template, redirect, url_for, flash, abort, request, current_app, jsonify, make_response, Response
 
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -144,6 +143,20 @@ def login():
         user=User.query.filter_by(phone=phone).first()
         if user and user.password==password:
             if user.coin:
+                coins=user.coins
+                if coins ==0:
+                    return "sorry your subscribtion ended"
+                user.coins-=1
+                login_user(user)
+                db.session.commit()
+                return render_template("dash.html",coins=user.coins)
+            if user.due_Date==datetime.today():
+                return "sorry you end "
+            login_user(user)
+            return render_template("dash.html")
+
+    return render_template("login.html")
+
 
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5000,debug=True)
