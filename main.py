@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 from flask import Flask, render_template, redirect, url_for, flash, abort, request, current_app, jsonify, make_response, \
@@ -79,5 +79,73 @@ admin.add_view(MyModelView(User, db.session))
 @app.route("/")
 def start():
     return render_template("index.html")
+@app.route('/r', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        # Get data from the form
+        name = request.form.get('Name')
+        phone = request.form.get('phone')
+        gender = request.form.get('Gender')
+        email = request.form.get('email')
+        username = request.form.get('Username')
+        password = request.form.get('Password')
+        weight = request.form.get('weight')
+        tall = request.form.get('tall')
+        age = request.form.get('age')
+        health_condition = request.form.get('health')
+        subscription = request.form.get('monthly') or request.form.get('yearly')
+
+        # Create a new User instance and set joining date to the current date
+        new_user = User(
+            name=name,
+            phone=phone,
+            password=password,
+            email=email,
+            weight=weight,
+            tall=tall,
+            age=age,
+            health=health_condition,
+            starting_day=datetime.now()
+            # Add other fields as needed
+        )
+
+        # Calculate due date based on subscription type
+        if subscription == 'monthly':
+            new_user.due_Date = datetime.now() + timedelta(days=30)
+        elif subscription == 'yearly':
+            new_user.due_Date = datetime.now() + timedelta(days=365)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Redirect to the login page after successful registration
+        return redirect(url_for('login'))
+
+    # If it's a GET request, render the registration form
+    return render_template('register.html')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        phone = request.form.get('phone')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(phone=phone).first()
+
+        if user and user.password == password:
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Login failed. Check your phone and password.', 'error')
+    return render_template("login.html")
+
+@app.route('/dashboard')
+def dashboard():
+       if current_user.is_authenticated:
+            # Render the dashboard for the authenticated user
+             return render_template('dashboard.html')
+       else:
+            # Redirect to the login page if not authenticated
+             return redirect(url_for('login'))
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5000,debug=True)
