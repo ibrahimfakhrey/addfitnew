@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>addfit</title>
+  <link rel="stylesheet" href="../static/dashboard.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ current_user.name}}'s Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css?family=Muli%7CRoboto:400,300,500,700,900" rel="stylesheet"></head>
+  <body>
+
+    <div class="main-nav">
+        <ul class="nav">
+          <li class="name">{{ current_user.name}}</li>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Experience</a></li>
+        </ul>
+    </div>
+
+    <header>
+      <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="John Doe" class="profile-image">
+      <h1 class="tag name">Hello, {{ current_user.name}}.</h1>
+      <p class="tag location">down you will find your information </p>
+    </header>
+
+    <main class="flex">
+      <div class="card">
+        <h2>Public message </h2>
+        <p>{{ current_user.message }}</p>
+       {% if current_user.pay %}
+       <a href="/training" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 5px;">Your Training Plan</a>
+
+    <br>
+
+    <a href="/nutrition" style="display: inline-block; padding: 10px 20px; background-color: #008CBA; color: white; text-align: center; text-decoration: none; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 5px;">Your Nutrition Plan</a>
+        {% else %}
+        <p> your subscription has to be renewed </p>
+        <a href="/pricing"> please subscribe</a>
+        {% endif %}
+      </div> 
+
+      <div class="card">
+        <h2>Goals</h2>
+        <p>I want to master the process of building web sites and increase my knowledge, skills and abilities in:</p>
+        <ul class="skills">
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>JavaScript</li>
+          <li>ExpressJS</li>
+          <li>ReactJS</li>
+        </ul>
+        <p>I’d like to work for a web development firm helping clients create an impressive online presence.</p>
+      </div> 
+
+    </main>
+    <footer>
+      <p class="copyright"></p>
+    </footer>
+  </body>
+  </html>
+<!-- partial -->
+  <script  src="../static/dash.js"></script>
+
+</body>
+</html>

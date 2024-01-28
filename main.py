@@ -18,7 +18,7 @@ import uuid
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from datetime import datetime
-
+from flask_migrate import Migrate
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -44,6 +44,7 @@ app.config['SECRET_KEY'] = 'any-secret-key-you-choose'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 with app.app_context():
 
@@ -67,6 +68,10 @@ with app.app_context():
         numbers=db.Column(db.String(100))
         member=db.Column(db.String(100))
         adress=db.Column(db.String(100))
+        cal = db.Column(db.String(100))
+        training = db.Column(db.String(100))
+        times=db.Column(db.String(100))
+
     db.create_all()
 
 
@@ -117,6 +122,30 @@ def register():
 
         db.session.add(new_user)
         db.session.commit()
+        sender_email = 'ibrahimfakhreyams@gmail.com'  # Your Gmail address
+        app_password = 'qszc jcyr amyi vckn'  # The app password generated in step 2
+
+        subject = 'confirmation from add fit '
+        body = f' we are glade to  have anew client like you , HI{ name } your subscription starts from {datetime.now()} it will end {new_user.due_Date} you can enjoy all our products from this moment '
+
+        # Set up the MIME
+        message = MIMEMultipart()
+        message['From'] = sender_email
+        message['To'] = request.form.get("email")
+        message['Subject'] = subject
+
+        # Attach the body to the email
+        message.attach(MIMEText(body, 'plain'))
+
+        # Connect to Google's SMTP server
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            # Log in using your Gmail credentials
+            server.login(sender_email, app_password)
+            # Send the email
+            server.sendmail(sender_email, request.form.get("email"), message.as_string())
+
+
 
         # Redirect to the login page after successful registration
         return redirect(url_for('login'))
