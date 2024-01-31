@@ -176,5 +176,53 @@ def dashboard():
        else:
             # Redirect to the login page if not authenticated
              return redirect(url_for('login'))
+@app.route("/forget",methods=["GET","POST"])
+def forget():
+    if request.method =="POST":
+        email=request.form.get("email")
+        user=User.query.filter_by(email=email).first()
+        if user:
+            sender_email = 'ibrahimfakhreyams@gmail.com'  # Your Gmail address
+            app_password = 'qszc jcyr amyi vckn'  # The app password generated in step 2
+
+            subject = 'confirmation from add fit '
+            link=f"http://127.0.0.1:5000/resetpassword/{user.id}"
+
+            body = f"to reset the password click in this link{link}"
+
+            # Set up the MIME
+            message = MIMEMultipart()
+            message['From'] = sender_email
+            message['To'] = request.form.get("email")
+            message['Subject'] = subject
+
+            # Attach the body to the email
+            message.attach(MIMEText(body, 'plain'))
+
+            # Connect to Google's SMTP server
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()
+                # Log in using your Gmail credentials
+                server.login(sender_email, app_password)
+                # Send the email
+                server.sendmail(sender_email, request.form.get("email"), message.as_string())
+            return "email sent successfully "
+    return render_template("reset.html")
+@app.route("/resetpassword/<int:user_id>",methods=["GET","POST"])
+def resetpassword(user_id):
+    if request.form=="POST":
+
+        target= User.query.filter_by(id=user_id).first()
+        if target:
+
+            target.password=request.form.get("password")
+            db.session.commit()
+            return redirect("/login")
+    return render_template("password.html")
+
+
+@app.route("/training")
+def training():
+    return render_template("class.html")
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5000,debug=True)
