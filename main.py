@@ -72,6 +72,39 @@ with app.app_context():
         training = db.Column(db.String(100))
         times=db.Column(db.String(100))
 
+
+    class Cardio( db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        name=db.Column(db.String(100))
+        video=db.Column(db.String(1000))
+        gif=db.Column(db.String(1000))
+        trainer_name=db.Column(db.String(100))
+        description=db.Column(db.String(1000))
+    class Back( db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        name=db.Column(db.String(100))
+        video=db.Column(db.String(1000))
+        gif=db.Column(db.String(1000))
+        trainer_name=db.Column(db.String(100))
+        description=db.Column(db.String(1000))
+    class Crossfit( db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        name=db.Column(db.String(100))
+        video=db.Column(db.String(1000))
+        gif=db.Column(db.String(1000))
+        trainer_name=db.Column(db.String(100))
+        description=db.Column(db.String(1000))
+    class Power_lifting( db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        name=db.Column(db.String(100))
+        video=db.Column(db.String(1000))
+        gif=db.Column(db.String(1000))
+        trainer_name=db.Column(db.String(100))
+        description=db.Column(db.String(1000))
+
+
+
+
     db.create_all()
 
 
@@ -81,6 +114,10 @@ class MyModelView(ModelView):
 
 admin = Admin(app)
 admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Back, db.session))
+admin.add_view(MyModelView(Crossfit, db.session))
+admin.add_view(MyModelView(Power_lifting, db.session))
+admin.add_view(MyModelView(Cardio, db.session))
 @app.route("/")
 def start():
     return render_template("index.html")
@@ -224,5 +261,13 @@ def resetpassword(user_id):
 @app.route("/training")
 def training():
     return render_template("class.html")
+@app.route("/training_description/<name>")
+def des(name):
+    target=None
+    if name=="Cardio":
+        target=Cardio.query.all()
+
+
+    return render_template("des.html",target=target)
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=5000,debug=True)
